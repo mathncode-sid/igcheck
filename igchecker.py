@@ -3,7 +3,6 @@ import json
 import io
 import time
 import pandas as pd
-import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Instagram Follower Checker", page_icon="📸", layout="centered")
 

@@ -2,6 +2,8 @@ import streamlit as st
 import json
 import io
 import time
+import pandas as pd
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Instagram Follower Checker", page_icon="📸", layout="centered")
 
@@ -60,15 +62,14 @@ if followers_file and following_file:
     st.subheader("🚫 People not following you back:")
 
     if not_following_back:
-        # Let user choose how many usernames to preview
+        # Slider for "not following back"
         preview_count = st.slider(
-            "How many usernames to preview?", 
+            "How many usernames to preview (not following you back)?", 
             min_value=5, 
             max_value=min(50, len(not_following_back)), 
             value=10
         )
 
-        # Show preview list
         preview_list = not_following_back[:preview_count]
         for user in preview_list:
             st.write(f"@{user}")
@@ -76,19 +77,86 @@ if followers_file and following_file:
         if len(not_following_back) > preview_count:
             st.info(f"...and {len(not_following_back) - preview_count} more.")
 
-
-        # Prepare TXT content
+        # TXT output
         txt_output = "\n".join([f"@{user}" for user in not_following_back])
-
-        # Create downloadable file
         txt_bytes = io.BytesIO(txt_output.encode("utf-8"))
         st.download_button(
-            label="📥 Download Full Results",
+            label="📥 Download Full Results (TXT)",
             data=txt_bytes,
             file_name="not_following_back.txt",
             mime="text/plain"
+        )
+
+        # CSV output
+        df = pd.DataFrame({"Not Following Back": not_following_back})
+        st.download_button(
+            label="📥 Download Full Results (CSV)",
+            data=df.to_csv(index=False).encode("utf-8"),
+            file_name="not_following_back.csv",
+            mime="text/csv"
         )
     else:
         st.write("🎉 Everyone you follow follows you back!")
 
     st.markdown("</div>", unsafe_allow_html=True)
+
+    # -------------------- EXTRA FEATURES --------------------
+
+    # People you don’t follow back
+    you_dont_follow_back = sorted(followers - following)
+
+    if you_dont_follow_back:
+        st.subheader("🔄 People you don’t follow back:")
+
+        # Slider for "you don’t follow back"
+        preview_count2 = st.slider(
+            "How many usernames to preview (you don’t follow back)?", 
+            min_value=5, 
+            max_value=min(50, len(you_dont_follow_back)), 
+            value=10
+        )
+
+        preview_list2 = you_dont_follow_back[:preview_count2]
+        for user in preview_list2:
+            st.write(f"@{user}")
+
+        if len(you_dont_follow_back) > preview_count2:
+            st.info(f"...and {len(you_dont_follow_back) - preview_count2} more.")
+
+        # TXT output
+        txt_output2 = "\n".join([f"@{user}" for user in you_dont_follow_back])
+        txt_bytes2 = io.BytesIO(txt_output2.encode("utf-8"))
+        st.download_button(
+            label="📥 Download Full Results (TXT)",
+            data=txt_bytes2,
+            file_name="you_dont_follow_back.txt",
+            mime="text/plain"
+        )
+
+        # CSV output
+        df2 = pd.DataFrame({"You Don’t Follow Back": you_dont_follow_back})
+        st.download_button(
+            label="📥 Download Full Results (CSV)",
+            data=df2.to_csv(index=False).encode("utf-8"),
+            file_name="you_dont_follow_back.csv",
+            mime="text/csv"
+        )
+
+    # Summary stats
+    st.markdown("### 📊 Quick Stats")
+    st.write(f"Followers: {len(followers)}")
+    st.write(f"Following: {len(following)}")
+    st.write(f"Not following back: {len(not_following_back)}")
+    st.write(f"You don’t follow back: {len(you_dont_follow_back)}")
+
+    # Visualization
+    labels = ['Mutual', 'Not Following Back', 'You Don’t Follow Back']
+    sizes = [
+        len(followers & following),
+        len(not_following_back),
+        len(you_dont_follow_back)
+    ]
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+    ax.axis('equal')
+    st.pyplot(fig)

@@ -5,7 +5,6 @@ import time
 
 st.set_page_config(page_title="Instagram Follower Checker", page_icon="📸", layout="centered")
 
-# Custom CSS for Instagram-like colors
 st.title("📸 Instagram Follower Checker")
 
 st.markdown("""

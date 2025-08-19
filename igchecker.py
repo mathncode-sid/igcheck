@@ -149,14 +149,15 @@ if followers_file and following_file:
     st.write(f"Not following back: {len(not_following_back)}")
     st.write(f"You don’t follow back: {len(you_dont_follow_back)}")
 
-    # Visualization
-    labels = ['Mutual', 'Not Following Back', 'You Don’t Follow Back']
-    sizes = [
-        len(followers & following),
-        len(not_following_back),
-        len(you_dont_follow_back)
-    ]
-    fig, ax = plt.subplots()
-    ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
-    ax.axis('equal')
-    st.pyplot(fig)
+    # Visualization using Streamlit's built-in charting
+    st.markdown("### 📊 Visualization")
+    chart_data = pd.DataFrame({
+        "Category": ["Mutual", "Not Following Back", "You Don’t Follow Back"],
+        "Count": [
+            len(followers & following),
+            len(not_following_back),
+            len(you_dont_follow_back)
+        ]
+    })
+    st.bar_chart(chart_data.set_index("Category"))
+
